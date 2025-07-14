@@ -1,9 +1,17 @@
-name: CI
+name: CI/CD
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  release:
+    types:
+      - published
+
+env:
+  MINIMUM_PYTHON_VERSION: '3.12'
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,3 +26,4 @@ jobs:
 
     - name: Run tests
       run: poetry run pytest tests/
+

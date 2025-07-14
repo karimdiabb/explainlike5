@@ -1,7 +1,7 @@
 [project]
 name = "explainlike5"
 version = "0.1.0"
-description = ""
+description = "Explain or comment Python functions using LLMs like you're 5 years old."
 authors = [
     {name = "Karim",email = "115158216+karimdiabb@users.noreply.github.com"}
 ]
