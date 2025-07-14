@@ -10,7 +10,8 @@ requires-python = ">=3.12"
 dependencies = [
     "openai (>=1.95.1,<2.0.0)",
     "click (>=8.2.1,<9.0.0)",
-    "pytest (>=8.4.1,<9.0.0)"
+    "pytest (>=8.4.1,<9.0.0)",
+    "python-dotenv (>=1.1.1,<2.0.0)",
 ]
 
 [tool.poetry]
