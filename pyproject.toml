@@ -20,6 +20,11 @@ packages = [{include = "explainlike5"}]
 [tool.poetry.scripts]
 explainlike5 = "explainlike5.cli:main"
 
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^4.2.0"
+black = "^25.1.0"
+flake8 = "^7.3.0"
+
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"

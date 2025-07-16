@@ -1,53 +1,66 @@
 import click
-import ast
-from explainlike5.llm import explain_with_openai, explain_with_openrouter
+from explainlike5.llm import (
+    explain_with_openrouter,
+    comment_with_openrouter,
+)
+from explainlike5.core import (
+    find_functions,
+    extract_function_code,
+    add_comment_to_function,
+)
+
 
 @click.command()
-@click.argument('file')
-@click.option('--function', '-f', help="Name of the function to explain")
-def main(file, function):
-    click.echo("You passed the file path: {}".format(file))
+@click.argument("file")
+@click.option("--function", "-f", help="Function name")
+@click.option("--comment", is_flag=True, help="Generate a docstring")
+@click.option(
+    "--write",
+    is_flag=True,
+    help="Overwrite original function with the commented version",
+)
+def main(file, function, comment, write):
+    click.echo(f"📄 File: {file}")
 
-    if function:
-        click.echo("You want to explain the function: {}".format(function))
-        function_code, error = extract_function_code(file, function)
-        if error:
-            click.echo(f"Error: {error}")
+    if not function:
+        return list_functions(file)
+
+    click.echo(f"🔍 Function: {function}")
+    code, error = extract_function_code(file, function)
+    if error:
+        return click.echo(f"❌ {error}")
+
+    if comment:
+        return handle_comment(code, file, function, write)
+
+    return handle_explanation(code)
+
+
+def list_functions(file):
+    click.echo("🔎 Listing functions...")
+    for name in find_functions(file):
+        click.echo(f"• {name}")
+
+
+def handle_comment(code, file, function, write):
+    result, err = comment_with_openrouter(code)
+    if err:
+        return click.echo(f"❌ LLM error: {err}")
+
+    if write:
+        success = add_comment_to_function(file, function, result)
+        if success:
+            click.echo(f"✅ Comment written to {file}")
         else:
-            click.echo("Function code:\n" + function_code)
-            explain, error = explain_with_openrouter(function_code)
-
-            if error:
-                click.echo(f"Error: {error}")
-            else:
-                click.echo("\n🧠 Here's the explanation:\n")
-                click.echo(explain)
-
+            click.echo("❌ Failed to write comment.")
     else:
-        functions = find_functions(file)
-        click.echo("Finding functions in the file...")
+        click.echo("📝 Commented function:\n")
+        click.echo(result)
 
-        for name in functions:
-            click.echo("Function found: {}".format(name))
 
-def find_functions(file):
-    with open(file, 'r') as f:
-        content = f.read()
-
-    tree = ast.parse(content)
-    functions = [   
-        node.name for node in ast.walk(tree)
-        if isinstance(node, ast.FunctionDef)
-    ]
-    return functions
-
-def extract_function_code(file, function):
-    with open(file, 'r') as f:
-        content = f.read()
-
-    tree = ast.parse(content)
-    for node in ast.walk(tree):
-        if isinstance(node, ast.FunctionDef) and node.name == function:
-            return ast.get_source_segment(content, node), None
-
-    return None, f"Function '{function}' not found."
+def handle_explanation(code):
+    result, err = explain_with_openrouter(code)
+    if err:
+        return click.echo(f"❌ LLM error: {err}")
+    click.echo("🧠 Explanation:\n")
+    click.echo(result)
