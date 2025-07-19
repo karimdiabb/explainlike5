@@ -6,7 +6,7 @@ from explainlike5.llm import (
 from explainlike5.core import (
     find_functions,
     extract_function_code,
-    add_comment_to_function,
+    add_docstring_to_function,
 )
 
 
@@ -48,7 +48,7 @@ def handle_comment(code, file, function, write):
         return click.echo(f"❌ LLM error: {err}")
 
     if write:
-        success = add_comment_to_function(file, function, result)
+        success = add_docstring_to_function(file, function, result)
         if success:
             click.echo(f"✅ Comment written to {file}")
         else:

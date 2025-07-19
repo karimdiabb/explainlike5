@@ -20,7 +20,7 @@ def explain_with_openai(code):
 
     prompt = (
         "Explain the following Python code in a way that a 5-year-old can understand. "
-        "Use simple language and analogies. Here is the code:\n\n"
+        "Use simple language and analogies. Don't change the code, just explain it.\n\n"
         f"{code}\n\n"
         "Explanation:"
     )
@@ -29,7 +29,7 @@ def explain_with_openai(code):
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": prompt}],
-            temperature=0.7,
+            temperature=0.0,
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
@@ -44,16 +44,24 @@ def explain_with_openrouter(code):
     client = OpenAI(api_key=api_key, base_url="https://openrouter.ai/api/v1")
 
     prompt = (
-        "Explain this Python function in a way that a 5-year-old can understand. "
-        "Use simple words and examples:\n\n"
-        f"{code}\n\nExplanation:"
+        "YOUR JOB: write *only* the plain English text of a Python docstring\n"
+        "— no backticks, no markdown, no code, no extra explanation —\n"
+        "Make it simple but clear, so anyone with any level of experience can understand it.\n\n"  # noqa: B950
+        "EXAMPLE:\n"
+        "Function:\n"
+        "def add(a, b):\n"
+        "    return a + b\n\n"
+        "Output:\n"
+        "Adds two things together and tells you the answer.\n\n"
+        "NOW YOUR TURN. Function:\n"
+        f"{code}"
     )
 
     try:
         response = client.chat.completions.create(
             model="deepseek/deepseek-chat-v3-0324:free",
             messages=[{"role": "user", "content": prompt}],
-            temperature=0.7,
+            temperature=0.0,
         )
         return response.choices[0].message.content.strip(), None
 
